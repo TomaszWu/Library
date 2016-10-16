@@ -13,7 +13,7 @@ class Db {
 
             self::$conn->set_charset('utf8');
             if (self::$conn->connect_error) {
-                die('Connection error: ' . self::$conn->connection_errno);
+                die('Connection error: ' . self::$conn->connection_error);
             }
         }
         // zwracam połączenie

@@ -5,7 +5,7 @@ class Book implements JsonSerializable {
     private $id;
     private $title;
     private $author;
-    private $descripion;
+    private $description;
 
     public function __construct() {
         $this->id = -1;
@@ -14,27 +14,30 @@ class Book implements JsonSerializable {
         $this->description = '';
     }
 
-//    public static function addANewBookToTheDB(mysqli $conn) {
-//        if ($this - id == -1) {
-//            $query = "INSERT INTO books (title, author, description)
-//                      VALUES ('.$connection->real_escape_string($this->title)', 
-//                    .$connection->real_escape_string($this->author)', '.$connection->real_escape_string($this->description)')";
-//        }
-//        if($this->query($query)){
-//            $this->id = $connection->insert_id;
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-
-    
+   public function addABookToTheDB (mysqli $connection){
+     if($this->id == -1){
+         $query = "INSERT INTO books (title, author, description) 
+                   VALUES ('$this->title', '$this->author', '$this->description')
+                 ";
+         if($connection->query($query)){
+             $newId = json_encode($this->id);
+             return true;
+         } else {
+             return false;
+         }
+         return $newId;
+     }
+     
+ }
     
     // id nie podane zwróci allBooks a podane pojedyńczą książkę
     public static function loadFromDB(mysqli $conn, $id = null) {
         if (is_null($id)) {
             //pobieramy wszystkei książki 
-            $result = $conn->query('SELECT * FROM books');
+            $result = $conn->query('SELECT * FROM books ORDER BY id DESC');
+        } elseif ($id == -10) {
+            
+            $result = $conn->query('SELECT * FROM books ORDER BY id DESC LIMIT 1');
         } else {
 
             $result = $conn->query("SELECT * FROM books WHERE id='" . intval($id) . "'");
@@ -55,6 +58,17 @@ class Book implements JsonSerializable {
 
         return $bookList;
     }
+    
+    public static function deleteTheBook(mysqli $conn, $id){
+        if($result = $conn->query("DELETE FROM books WHERE id='" . $id . "'")){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    
+    
 
     public function jsonSerialize() {
 // funckja zwraca na dane z obiektu do json_encode
@@ -90,12 +104,12 @@ class Book implements JsonSerializable {
         $this->author = $author;
     }
 
-    function getDescripion() {
-        return $this->descripion;
+    function getDescription() {
+        return $this->description;
     }
 
-    function setDescripion($descripion) {
-        $this->descripion = $descripion;
+    function setDescription($description) {
+        $this->description = $description;
     }
 
 }
