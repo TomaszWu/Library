@@ -26,10 +26,9 @@ $(function () {
     });
     var allBooks = $('#bookList');
     $(document).on('click', 'h3:first-child', function (event) {
-        console.log($(this));
         for (var i = 0; i < allBooks.length; i++) {
-            var dataToGet = ($(this).find('h3').data('id'));
-            var h3ToAddData = $(this).find('.description');
+            var dataToGet = ($(this).data('id'));
+            var h3ToAddData = $(this).siblings('.description');
             var divToadd = $(this).parent();
             var form = $('<form>').addClass('formToMakeChange');
             var labelTitle = $('<label>');
@@ -41,7 +40,7 @@ $(function () {
             labelDescription.html('Zmień opis');
             var changeDescription = $('<input>').attr('id', 'changeDescription');
             var submitChangesHref = $('<a href>').addClass('.submitChanges').html('wprowadź zmiany');
-//            var submitChangesHref = $('<a>').attr('href', 'api/books.php?id="' + dataToGet + '"').addClass('.submitChanges').html('wprowadź zmiany');
+            var submitChangesHref = $('<a href>').addClass('.submitChanges').html('wprowadź zmiany');
             $.ajax({
                 url: 'api/books.php',
                 type: 'GET',
@@ -60,7 +59,8 @@ $(function () {
                         form.append(br2);
                         form.append(submitChangesHref);
                         form.insertAfter(h3ToAddData);
-                        event.preventDefault();
+
+
                     }
                 },
                 error: function () {
@@ -68,6 +68,28 @@ $(function () {
                 }
             })
         }
+
+        $(document).on('click', '.singleBook form a', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            var changeTitle = $(this).parent().find('#changeTitle').val();
+            var changeDescription = $(this).parent().find('#changeDescription').val();
+            var idToChange = $(this).parent().siblings('h3').data('id');
+            $.ajax({
+                url: 'api/books.php',
+                type: 'PUT',
+                data: {id: idToChange, newAuthor: changeTitle, newDescription: changeDescription},
+                dataType: 'json'
+            })
+                    .done(function (result) {
+                        var newestBook = JSON.parse(result[0]);
+                        console.log(newestBook.title);
+                    })
+                    .fail(function () {
+                        console.log('Wystąpił błąd123');
+                    });
+        });
     });
 
     $('#addANewBook').on('click', function () {
@@ -116,32 +138,29 @@ $(function () {
                 });
     });
 
-    $(document).on('click', '.submitChanges', function (event) {
-        console.log('tak');
-        event.preventDefault();
-        stopImmediatePropagation();
-//        var changeTitle = $(this).parent().find('#changeTitle').val();
-//        var changeDescription = $(this).parent().find('#changeDescription').val();
-//        var idToChange = $(this).parent().siblings('h3').data('id');
-//        $.ajax({
-//            url: 'api/books.php',
-//            type: 'PUT',
-//            data: {id: idToChange},
-////            data: {id: idToChange, newAuthor: changeTitle, newDescription: changeDescription},
-//            dataType: 'json'
-//        })
-//                .done(function (result) {
-//                    var newestBook = JSON.parse(result[0]);
-//                    console.log(newestBook);
-//                })
-//                .fail(function () {
-//                    console.log('Wystąpił błąd123');
-//                });
+
+//    var changeTitle = $(this).parent().find('#changeTitle').val();
+//    var changeDescription = $(this).parent().find('#changeDescription').val();
+//    var idToChange = $(this).parent().siblings('h3').data('id');
+//
+//    $.ajax({
+//        url: 'api/books.php',
+//        type: 'PUT',
+//        data: {id: idToChange},
+//        data: {id: idToChange, newAuthor: changeTitle, newDescription: changeDescription},
+//        dataType: 'json'
+//    })
+//            .done(function (result) {
+//                var newestBook = JSON.parse(result[0]);
+//                console.log('tak');
+//            })
+//            .fail(function () {
+//                console.log('Wystąpił błąd123');
+//            });
 
 
 
-    });
+
 
 
 });
-

@@ -14,29 +14,27 @@ class Book implements JsonSerializable {
         $this->description = '';
     }
 
-   public function addABookToTheDB (mysqli $connection){
-     if($this->id == -1){
-         $query = "INSERT INTO books (title, author, description) 
-                   VALUES ('$this->title', '$this->author', '$this->description')
-                 ";
-         if($connection->query($query)){
-             $newId = json_encode($this->id);
-             return true;
+    public function addANewBookToTheDB(mysqli $conn) {
+        if ($this -> id == -1) {
+            $query = "INSERT INTO books (title, author, description)
+                      VALUES ('$this->title', 
+                    '$this->author', '$this->description')";
+        }
+        if($conn->query($query)){
+            $this->id = $conn->insert_id;
+            return true;
          } else {
-             return false;
-         }
-         return $newId;
-     }
-     
- }
-    
+            return false;
+        }
+    }
+
     // id nie podane zwróci allBooks a podane pojedyńczą książkę
     public static function loadFromDB(mysqli $conn, $id = null) {
         if (is_null($id)) {
             //pobieramy wszystkei książki 
             $result = $conn->query('SELECT * FROM books ORDER BY id DESC');
-        } elseif ($id == -10) {
-            
+        } elseif ($id == 'lastBookAdded') {
+
             $result = $conn->query('SELECT * FROM books ORDER BY id DESC LIMIT 1');
         } else {
 
@@ -58,17 +56,39 @@ class Book implements JsonSerializable {
 
         return $bookList;
     }
-    
-    public static function deleteTheBook(mysqli $conn, $id){
-        if($result = $conn->query("DELETE FROM books WHERE id='" . $id . "'")){
+
+    public static function deleteTheBook(mysqli $conn, $id) {
+        if ($result = $conn->query("DELETE FROM books WHERE id='" . $id . "'")) {
             return true;
         } else {
             return false;
         }
     }
-    
-    
-    
+
+    public static function changeTheBook(mysqli $conn, $id, $title = null, $description = null) {
+        
+            if(!is_null($title) && !is_null($description)){
+            $query = "UPDATE books SET title='" . $title . "', description='" . $description . "' WHERE id='" . $id . "'";
+            } elseif ($title){
+                $query = "UPDATE books SET title='" . $title . "'  WHERE id='" . $id . "'";
+            } else {
+                $query = "UPDATE books SET description='" . $description . "'  WHERE id='" . $id . "'";
+            }
+            
+            if ($conn->query($query)) {
+                return true;
+            } else {
+                return false;
+            }
+//        if ($description != 0) {
+//            $query = "UPDATE books SET title='" . $description . "' WHERE id='" . $id . "'";
+//           if ($conn->query($query)) {
+//                return true;
+//            } else {
+//                return false;
+//            }
+//        }
+    }
 
     public function jsonSerialize() {
 // funckja zwraca na dane z obiektu do json_encode

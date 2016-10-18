@@ -15,7 +15,6 @@ header('Content-Type: application/json');
 
 
 
-
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['id']) && intval($_GET['id']) > 0) {
         // sprawdzamy czy przesłane jest id pojedyńczej książki
@@ -38,22 +37,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $newBook->setTitle($title);
         $newBook->setAuthor($author);
         $newBook->setDescription($description);
-        $newBook->addABookToTheDB($conn);
-
-        $newBookAdded = Book::loadFromDB($conn, -10);
-        echo json_encode($newBookAdded);
+        $newBook->addANewBookToTheDB($conn);
+        $newBookAdded = Book::loadFromDB($conn, 'lastBookAdded');
     }
+    echo json_encode($newBookAdded);
 } elseif ($_SERVER['REQUEST_METHOD'] == 'PUT') {
-    parset_str(file_get_contents('php://input'), $put_vars);
+    parse_str(file_get_contents("php://input"), $put_vars);
+    if (isset($put_vars['id']) && isset($put_vars['newAuthor']) && isset($put_vars['newDescription'])) {
+//            && (isset($put_vars['newAuthor']) || isset($put_vars['newDescription']))) {
+//            (isset($_PUT['newAuthor']) && strlen($_POST['newAuthor']) > 0 && strlen($_POST['newAuthor']) < 100) 
+//            || (isset($_PUT['newDescription']) && strlen($_POST['newDescription']) > 0 && strlen($_POST['newDescription']) < 100 )){
+
+
+        $id = $put_vars['id'];
+        $newAuthor = $put_vars['newAuthor'];
+        $newDescription = $put_vars['newDescription'];
+        Book::changeTheBook($conn, $put_vars['id'], $put_vars['newAuthor'], $put_vars['newDescription']);
+
+        $changedBook = Book::loadFromDB($conn, $put_vars['id']);
+        echo json_encode($changedBook);
+    }
+    
 } elseif ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
     parse_str(file_get_contents("php://input"), $put_vars);
     if (isset($put_vars['id'])) {
         $book = Book::loadFromDB($conn, $put_vars['id']);
         $bookToDelete = json_decode($book[0], true);
-        var_dump($bookToDelete['id']);
         Book::deleteTheBook($conn, $bookToDelete['id']);
     }
-    $confirmationDelete = ['status' => 'Książka skasowana'];
+    $confirmationDelete = ['statusToConfirm' => 'Ksiazka skasowana'];
     echo json_encode($confirmationDelete);
 }
 
