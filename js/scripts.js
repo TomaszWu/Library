@@ -25,7 +25,8 @@ $(function () {
     $(document).on('click', 'h3:first-child', function (event) {
         for (var i = 0; i < allBooks.length; i++) {
             var dataToGet = ($(this).data('id'));
-            var h3ToAddData = $(this).siblings('.description');
+            var divToAddData = $(this).siblings('.description');
+            console.log(divToAddData);
             var divToadd = $(this).parent();
             var form = $('<form>').addClass('formToMakeChange');
             var labelTitle = $('<label>');
@@ -45,9 +46,9 @@ $(function () {
                 dataType: 'json',
                 success: function (result) {
                     var book = JSON.parse(result);
-                    var content = h3ToAddData.html();
+                    var content = divToAddData.html();
                     if (content != book.description) {
-                        h3ToAddData.html(book.description);
+                        divToAddData.html(book.description);
                         form.append(labelTitle);
                         form.append(changeTitle);
                         form.append(br);
@@ -55,7 +56,7 @@ $(function () {
                         form.append(changeDescription);
                         form.append(br2);
                         form.append(submitChangesHref);
-                        form.insertAfter(h3ToAddData);
+                        form.insertAfter(divToAddData);
                     }
                 },
                 error: function () {
@@ -63,6 +64,7 @@ $(function () {
                 }
             })
         }
+
 
         $(document).on('click', '.singleBook form a', function (event) {
             event.preventDefault();
@@ -77,6 +79,8 @@ $(function () {
             var idToChange = $(this).parent().siblings('h3').data('id');
             var titleToBeChanged = $(this).parent().siblings('h3');
             var descriptionToBeChanged = $(this).parent().siblings('.description');
+            var form = $(this).parent();
+            console.log(form);
             $.ajax({
                 url: 'api/books.php',
                 type: 'PUT',
@@ -87,9 +91,7 @@ $(function () {
                         var newestBook = JSON.parse(result[0]);
                         titleToBeChanged.html(newestBook.title);
                         descriptionToBeChanged.html(newestBook.description);
-                        changeTitle = '';
-                        changeDescription = '';
-
+                        form.remove();
                     })
                     .fail(function () {
                         console.log('Wystąpił błąd123');
@@ -97,8 +99,12 @@ $(function () {
 
 
         });
-
+        
     });
+
+
+
+
 
     $('#addANewBook').on('click', function () {
         var newTitle = $('#title').val();
@@ -125,6 +131,8 @@ $(function () {
                 .fail(function () {
                     console.log('Wystąpił błąd2');
                 });
+
+
     });
 
     $(document).on('click', '.delete', function (event) {
