@@ -12,10 +12,7 @@ $(function () {
                 var bookDiv = $('<div>');
                 bookDiv.addClass('singleBook');
                 bookDiv.html('<h3 data-id="' + book.id + '">' + book.title + '</h3><div class="description"></div>');
-                var newLink = $('<a href>');
-                newLink.html('Skasuj książkę');
-                newLink.addClass('delete');
-                bookDiv.append(newLink);
+                bookDiv.append(addDeleteButton());
                 //wpinamy książke na stronę
                 $('#bookList').append(bookDiv);
             }
@@ -59,8 +56,6 @@ $(function () {
                         form.append(br2);
                         form.append(submitChangesHref);
                         form.insertAfter(h3ToAddData);
-
-
                     }
                 },
                 error: function () {
@@ -72,10 +67,16 @@ $(function () {
         $(document).on('click', '.singleBook form a', function (event) {
             event.preventDefault();
             event.stopPropagation();
-
             var changeTitle = $(this).parent().find('#changeTitle').val();
             var changeDescription = $(this).parent().find('#changeDescription').val();
+            if (changeTitle.lenght == 0 || changeDescription == 0) {
+                alert('Proszę wprowadzić poprawne dane!');
+                event.preventDefault();
+                event.stopPropagation();
+            }
             var idToChange = $(this).parent().siblings('h3').data('id');
+            var titleToBeChanged = $(this).parent().siblings('h3');
+            var descriptionToBeChanged = $(this).parent().siblings('.description');
             $.ajax({
                 url: 'api/books.php',
                 type: 'PUT',
@@ -84,12 +85,19 @@ $(function () {
             })
                     .done(function (result) {
                         var newestBook = JSON.parse(result[0]);
-                        console.log(newestBook.title);
+                        titleToBeChanged.html(newestBook.title);
+                        descriptionToBeChanged.html(newestBook.description);
+                        changeTitle = '';
+                        changeDescription = '';
+
                     })
                     .fail(function () {
                         console.log('Wystąpił błąd123');
                     });
+
+
         });
+
     });
 
     $('#addANewBook').on('click', function () {
@@ -108,12 +116,15 @@ $(function () {
                     var newBook = $('<div>');
                     newBook.addClass('singleBook');
                     newBook.html('<h3 data-id="' + newestBook.id + '">' + newTitle + '</h3><div class="description"></div>');
+                    newBook.append(addDeleteButton());
                     $('#bookList').prepend(newBook);
+                    newTitle.val = '';
+                    newAuthor.val = '';
+                    newDescription.val = '';
                 })
                 .fail(function () {
                     console.log('Wystąpił błąd2');
                 });
-        event.preventDefault();
     });
 
     $(document).on('click', '.delete', function (event) {
@@ -139,27 +150,14 @@ $(function () {
     });
 
 
-//    var changeTitle = $(this).parent().find('#changeTitle').val();
-//    var changeDescription = $(this).parent().find('#changeDescription').val();
-//    var idToChange = $(this).parent().siblings('h3').data('id');
-//
-//    $.ajax({
-//        url: 'api/books.php',
-//        type: 'PUT',
-//        data: {id: idToChange},
-//        data: {id: idToChange, newAuthor: changeTitle, newDescription: changeDescription},
-//        dataType: 'json'
-//    })
-//            .done(function (result) {
-//                var newestBook = JSON.parse(result[0]);
-//                console.log('tak');
-//            })
-//            .fail(function () {
-//                console.log('Wystąpił błąd123');
-//            });
 
+    function addDeleteButton() {
+        var newLink = $('<a href>');
+        newLink.html('Skasuj książkę');
+        newLink.addClass('delete');
+        return newLink;
 
-
+    }
 
 
 

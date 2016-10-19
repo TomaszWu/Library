@@ -43,10 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     echo json_encode($newBookAdded);
 } elseif ($_SERVER['REQUEST_METHOD'] == 'PUT') {
     parse_str(file_get_contents("php://input"), $put_vars);
-    if (isset($put_vars['id']) && isset($put_vars['newAuthor']) && isset($put_vars['newDescription'])) {
-//            && (isset($put_vars['newAuthor']) || isset($put_vars['newDescription']))) {
-//            (isset($_PUT['newAuthor']) && strlen($_POST['newAuthor']) > 0 && strlen($_POST['newAuthor']) < 100) 
-//            || (isset($_PUT['newDescription']) && strlen($_POST['newDescription']) > 0 && strlen($_POST['newDescription']) < 100 )){
+    if (isset($put_vars['id'])  &&
+            (isset($put_vars['newAuthor']) && strlen($put_vars['newAuthor']) > 0 && strlen($put_vars['newAuthor']) < 100) 
+            || (isset($put_vars['newDescription']) && strlen($put_vars['newDescription']) > 0 && strlen($put_vars['newDescription']) < 100 )){
 
 
         $id = $put_vars['id'];
@@ -57,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $changedBook = Book::loadFromDB($conn, $put_vars['id']);
         echo json_encode($changedBook);
     }
-    
 } elseif ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
     parse_str(file_get_contents("php://input"), $put_vars);
     if (isset($put_vars['id'])) {
